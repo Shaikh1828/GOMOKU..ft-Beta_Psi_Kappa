@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gomoku Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .board-container {
+            position: relative;
+            background: linear-gradient(135deg, #654ea3 0%, #eaafc8 100%);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .board-bg {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><rect width="32" height="32" fill="rgba(236, 227, 199, 0.9)"/><line x1="0" y1="16" x2="32" y2="16" stroke="rgba(124, 85, 38, 0.5)" stroke-width="0.5"/><line x1="16" y1="0" x2="16" y2="32" stroke="rgba(124, 85, 38, 0.5)" stroke-width="0.5"/></svg>');
+            border-radius: 8px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .board-cell {
+            width: 32px;
+            height: 32px;
+            border: 1px solid rgba(124, 85, 38, 0.5);
+            position: relative;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .board-cell:hover {
+            background-color: rgba(255, 215, 0, 0.2);
+        }
+        
+        .black-stone {
+            width: 26px;
+            height: 26px;
+            background: radial-gradient(circle at 35% 35%, #444, #000);
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+        }
+        
+        .white-stone {
+            width: 26px;
+            height: 26px;
+            background: radial-gradient(circle at 35% 35%, #fff, #e0e0e0);
+            border: 1px solid #888;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .game-title {
+            color: #2d3748;
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .game-title::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, #654ea3, #eaafc8);
+            border-radius: 10px;
+        }
+          .status-bar {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            font-weight: 500;
+            color: #4a5568;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .current-turn {
+            font-size: 1.2rem;
+            font-weight: 600;
+            background: linear-gradient(to right, #6e8efb, #a777e3);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .player-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            font-size: 0.9rem;
+        }
+        
+        .player-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(249, 250, 251, 0.8);
+            padding: 4px 10px;
+            border-radius: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .player-stone {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        
+        .black {
+            background: radial-gradient(circle at 35% 35%, #444, #000);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+        }
+        
+        .white {
+            background: radial-gradient(circle at 35% 35%, #fff, #e0e0e0);
+            border: 1px solid #888;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn {
+            transition: all 0.3s ease;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn i {
+            font-size: 1.1rem;
+        }
+        
+        .btn:before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.4s ease-out, height 0.4s ease-out;
+        }
+        
+        .btn:hover:before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #6e8efb 0%, #a777e3 100%);
+            color: white;
+            box-shadow: 0 4px 14px rgba(110, 142, 251, 0.4);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #42e695 0%, #3bb2b8 100%);
+            color: white;
+            box-shadow: 0 4px 14px rgba(66, 230, 149, 0.4);
+        }
+        
+        .select-container {
+            position: relative;
+            margin-right: 1rem;
+        }
+        
+        .select-styled {
+            padding: 0.75rem 1.5rem;
+            background: white;
+            color: #4a5568;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            -webkit-appearance: none;
+            appearance: none;
+            padding-right: 2.5rem;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .select-container:after {
+            content: '\f078';
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            position: absolute;
+            top: 50%;
+            right: 1rem;
+            transform: translateY(-50%);
+            pointer-events: none;
+            color: #4a5568;
+        }
+        
+        .select-styled:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(110, 142, 251, 0.3);
+            border-color: #6e8efb;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center py-12 px-4">
+    <div class="container">
+        <div class="flex flex-col items-center">
+            <h1 class="game-title">Gomoku Game</h1>
+            
+            <div class="flex items-center justify-center w-full mb-6">
+                <div class="select-container">
+                    <select id="mode" class="select-styled">
+                        <option value="two_player">Two Player</option>
+                        <option value="ai">Player vs AI</option>
+                    </select>
+                </div>
+                <button id="start-btn" class="btn btn-primary">
+                    <i class="fas fa-play"></i>
+                    Start Game
+                </button>
+            </div>
+            
+            <div id="status" class="status-bar w-full mb-6"></div>
+            
+            <div class="board-container">
+                <div class="board-bg">
+                    <div id="board" class="grid gap-0" style="grid-template-columns: repeat(15, 32px);"></div>
+                </div>
+            </div>
+            
+            <button id="restart-btn" class="btn btn-success mt-6 hidden">
+                <i class="fas fa-redo"></i>
+                Restart Game
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const boardElement = document.getElementById('board');
+        const statusElement = document.getElementById('status');
+        const startButton = document.getElementById('start-btn');
+        const modeSelector = document.getElementById('mode');
+        const restartButton = document.getElementById('restart-btn');
+        let gameMode = 'two_player';
+        let gameStarted = false;
+
+        function initializeBoard() {
+            boardElement.innerHTML = '';
+            for (let i = 0; i < 15; i++) {
+                for (let j = 0; j < 15; j++) {
+                    const cell = document.createElement('div');
+                    cell.classList.add('board-cell');
+                    cell.dataset.row = i;
+                    cell.dataset.col = j;
+                    cell.addEventListener('click', handleCellClick);
+                    boardElement.appendChild(cell);
+                }
+            }
+        }        async function startGame() {
+            gameMode = modeSelector.value;
+            const response = await fetch('http://localhost:8000/start', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ mode: gameMode })  // Change this line to send an object with mode property
+            });
+            const state = await response.json();
+            gameStarted = true;
+            updateBoard(state);
+            updateStatusDisplay(state.current_player);
+            restartButton.classList.add('hidden');
+        }
+        
+        function updateStatusDisplay(currentPlayer) {
+            statusElement.innerHTML = `
+                <div class="current-turn">Player ${currentPlayer}'s Turn</div>
+                <div class="player-info">
+                    <div class="player-chip">
+                        <span class="player-stone black"></span>
+                        Player 1
+                    </div>
+                    <div class="player-chip">
+                        <span class="player-stone white"></span>
+                        Player 2
+                    </div>
+                </div>
+            `;
+        }
+
+        async function handleCellClick(event) {
+            if (!gameStarted) return;
+            const row = parseInt(event.target.dataset.row);
+            const col = parseInt(event.target.dataset.col);
+            const state = await getState();
+            if (state.winner) return;
+
+            try {
+                const response = await fetch('http://localhost:8000/move', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        row: row,
+                        col: col,
+                        player: state.current_player
+                    })
+                });
+                const newState = await response.json();
+                updateBoard(newState);                if (newState.winner) {
+                    statusElement.innerHTML = `
+                        <div class="current-turn">
+                            Player ${newState.winner} Wins!
+                        </div>
+                    `;
+                    gameStarted = false;
+                    restartButton.classList.remove('hidden');
+                } else {
+                    updateStatusDisplay(newState.current_player);
+                }
+            } catch (error) {
+                statusElement.textContent = 'Invalid move. Try again.';
+            }
+        }
+
+        async function getState() {
+            const response = await fetch('http://localhost:8000/state');
+            return await response.json();
+        }
+
+        function updateBoard(state) {
+            const cells = boardElement.children;
+            for (let i = 0; i < 15; i++) {
+                for (let j = 0; j < 15; j++) {
+                    const cell = cells[i * 15 + j];
+                    cell.innerHTML = '';
+                    if (state.board[i][j] === 1) {
+                        const stone = document.createElement('div');
+                        stone.classList.add('black-stone');
+                        cell.appendChild(stone);
+                    } else if (state.board[i][j] === 2) {
+                        const stone = document.createElement('div');
+                        stone.classList.add('white-stone');
+                        cell.appendChild(stone);
+                    }
+                }
+            }
+        }
+
+        startButton.addEventListener('click', startGame);
+        restartButton.addEventListener('click', startGame);
+        initializeBoard();
+    </script>
+</body>
+</html>
