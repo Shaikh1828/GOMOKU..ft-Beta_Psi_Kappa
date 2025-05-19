@@ -4,6 +4,44 @@
 
 This report describes the implementation of a Gomoku (Five in a Row) game with an AI opponent that uses minimax algorithm with alpha-beta pruning. The game is implemented as a web application with a Python backend using FastAPI and a JavaScript frontend, providing both player vs. player and player vs. AI modes.
 
+## How to Run
+
+### Prerequisites
+- Python 3.7 or higher
+- pip (Python package installer)
+
+### Setup Instructions
+
+1. **Clone or download the repository**
+
+3. **Create virtual environment**
+   ```bash
+   python -m venv .venv
+   .\.venv\Scripts\activate
+   ```
+
+3. **Install required dependencies**
+   ```bash
+   pip install -r .\requirements.txt
+   ```
+
+4. **Start the server**
+   ```bash
+   uvicorn backend.main:app --reload --port 8000
+   ```
+   The server should start, typically on http://127.0.0.1:8000
+
+5. **Access the game**
+   - Open your web browser
+   - Go Live from .\frontend\index.html
+   - Navigate to http://127.0.0.1:8000
+   - The game interface should load automatically
+
+### Game Controls
+- Click on any intersection on the board to place a stone
+- Use the mode selector to switch between Player vs. Player and Player vs. AI modes
+- The game status will show whose turn it is and when the game ends
+
 ## Implementation Details
 
 ### Game Architecture
