@@ -34,7 +34,7 @@ This report describes the implementation of a Gomoku (Five in a Row) game with a
 5. **Access the game**
    - Open your web browser
    - Go Live from .\frontend\index.html
-   - Navigate to http://127.0.0.1:8000
+   - Navigate to http://127.0.0.1:5500/frontend/index.html
    - The game interface should load automatically
 
 ### Game Controls
